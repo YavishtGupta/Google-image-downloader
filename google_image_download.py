@@ -1,31 +1,41 @@
+import os
 from google_images_search import GoogleImagesSearch 
+from dotenv import load_dotenv
 import time
 
-starttime=time.time()
+load_dotenv()
 
-apicred=input("enter your google search api key")
-cx=input("enter your google search engine id")
-apicred= 'AIzaSyBPFr33Yj7fc7x7Xu1SefIC6uXVht7FClI'
-cx= '56f055e935640402c'
-# creating object
-gis = GoogleImagesSearch(apicred,cx, validate_images=True)
+# Retrieve credentials from environment variables
+apicred = os.getenv("GOOGLE_SEARCH_API_KEY")
+cx = os.getenv("GOOGLE_SEARCH_ENGINE_ID")
 
+starttime = time.time()
 
+# Ensure the credentials are set
+if not apicred or not cx:
+    print("API credentials are not set in environment variables\n")
+    apicred=input("Please enter your API key:")
+    print("\n")
+    cx=input("Please enter your search engine ID:")
 
-def downloadimages(query):
-	arguments = {"q": query,
-				"filetype": "png",
-				"num":10,}
-	try:
-		gis.search(search_params=arguments, path_to_dir=f'./{query}/', 
-           custom_image_name=query)
-	# Handling File NotFound Error 
-	except FileNotFoundError: 
-		print("No file found")
+# Creating object
+gis = GoogleImagesSearch(apicred, cx, validate_images=True)
+
+def downloadimages(query,num_images):
+    arguments = {
+        "q": query,
+        "filetype": "png",
+        "num": num_images,
+    }
+    try:
+        gis.search(search_params=arguments, path_to_dir=f'./results/{query}/', custom_image_name=query)
+    except FileNotFoundError: 
+        print("No file found")
 
 query = input("Enter the search query: ")
+num_images = int(input("Enter the number of images to download: "))
 
-downloadimages(query)
+downloadimages(query,num_images)
 
-endtime=time.time()
-print(f"Time taken for downloading images: {endtime-starttime:.2f} seconds")
+endtime = time.time()
+print(f"Time taken for downloading images: {endtime - starttime:.2f} seconds")
